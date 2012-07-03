@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name="OsloBysykkel",
+    name="oslobysykkel",
     version="0.1.0",
 
     author="Martin Stensgård",
@@ -14,7 +14,7 @@ setup(
         "bin/oslobysykkel-query",
         ],
 
-    url="http://pypi.python.org/pypi/OsloBysykkel/",
+    url="http://pypi.python.org/pypi/oslobysykkel/",
 
     license="GNU General Public Licence 3",
 
