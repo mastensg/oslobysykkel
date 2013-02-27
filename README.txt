@@ -1,1 +1,1 @@
-OsloBysykkel lets you access data about the shared city bikes in Oslo.
+oslobysykkel lets you access data about the shared city bikes in Oslo.

@@ -1,4 +1,4 @@
-"""OsloBysykkel
+"""oslobysykkel
 
 Provides a Python interface to ClearChannel's API at
 http://smartbikeportal.clearchannel.no/public/mobapp/maq.asmx/
