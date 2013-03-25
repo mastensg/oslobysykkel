@@ -1,3 +1,6 @@
+0.2.1 - 2013-03-25
+    * oslobysykkel-query crashes less
+
 0.2.0 - 2013-03-25
     * Add oslobysykkel.get_racks()
     * Crash less

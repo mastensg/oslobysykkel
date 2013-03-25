@@ -20,5 +20,9 @@ if __name__ == "__main__":
     for i in args.RACK:
         r = oslobysykkel.get_rack(i)
 
+        if not r.description or not r.bikes or not r.locks:
+            sys.stderr.write("%s: Couldn't get status of rack %d\n" % (sys.argv[0], i))
+            continue
+
         print(r.description)
         print(format_bargraph(r.bikes, r.locks))
