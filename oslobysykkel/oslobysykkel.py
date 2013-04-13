@@ -1,77 +1,61 @@
+# -*- coding: utf8 -*-
 """oslobysykkel
 
-Provides a Python interface to ClearChannel's API at
-http://smartbikeportal.clearchannel.no/public/mobapp/maq.asmx/
+Provides a Python interface to ClearChannel's "API" at
+http://www.bysykler.no/oslo/kart-over-sykkelstativer
 
-Required: Python 3.2 or later (maybe)
+Required: Maybe Python 2.6, 3.2 or later
 """
 
 import collections
-import urllib.request, urllib.error, urllib.parse
-from xml.dom.minidom import parseString
-import html.parser
 
-last_rack = 111
+import lxml.html
 
-Rack = collections.namedtuple("Rack", "description latitude longitude online bikes locks")
-
-def _get_stations(resource):
-    url = "http://smartbikeportal.clearchannel.no/public/mobapp/maq.asmx/" + resource
-
-    with urllib.request.urlopen(url) as f:
-        data = f.read()
-
-    dom = parseString(data)
-    xml_string = dom.getElementsByTagName("string")[0].toxml()
-
-    data = html.parser.HTMLParser().unescape(xml_string).replace("&", " og ")
-    dom = parseString(data)
-    dom_stations = dom.getElementsByTagName("station")
-
-    return dom_stations
-
-def get_racks():
-    dom_stations = _get_stations("getRacks")
-
-    return [int(s.firstChild.nodeValue) for s in dom_stations]
+Rack = collections.namedtuple("Rack", "number description latitude longitude online bikes locks")
 
 def get_rack(rack_id):
-    dom_station = _get_stations("getRack?id=%d" % rack_id)[0]
+    for r in get_racks():
+        if r.number == rack_id:
+            return r
+
+def get_racks():
+    url = "http://www.bysykler.no/oslo/kart-over-sykkelstativer"
+
+    doc = lxml.html.parse(url)
+
+    racks = map(parse_rack, doc.findall(".//div[@class='mapMarker']"))
+
+    return racks
+
+def parse_rack(r):
+    lat = float(r.attrib["data-poslat"])
+    lng = float(r.attrib["data-poslng"])
+
+    htm = r.attrib["data-content"]
+    doc = lxml.html.fromstring(htm)
+
+    ps = doc.findall("p")
 
     try:
-        description = "-".join(dom_station.getElementsByTagName("description")[0].firstChild.nodeValue.split("-")[1:]).strip()
-    except:
-        description = None
+        words = ps[0].findall("strong")[0].text.split("-")
 
-    try:
-        latitude = float(dom_station.getElementsByTagName("latitude")[0].firstChild.nodeValue)
-    except:
-        latitude = None
+        number = int(words[0])
+        name = "-".join(words[1:])
 
-    try:
-        longitude = float(dom_station.getElementsByTagName("longitute")[0].firstChild.nodeValue)
-    except:
-        longitude = None
+        bikes = int(ps[1].text.split("kler:")[1])
+        locks = int(ps[2].text.split("ser:")[1])
 
-    try:
-        online = bool(dom_station.getElementsByTagName("online")[0].firstChild.nodeValue)
+        return Rack(number, name, lat, lng, False, bikes, locks)
     except:
-        online = None
+        words = ps[0].text.split("-")
 
-    try:
-        locks = int(dom_station.getElementsByTagName("empty_locks")[0].firstChild.nodeValue)
-    except:
-        locks = None
+        number = int(words[0])
+        name = "-".join(words[1:])
 
-    try:
-        bikes = int(dom_station.getElementsByTagName("ready_bikes")[0].firstChild.nodeValue)
-    except:
-        bikes = None
+        return Rack(number, name, lat, lng, False, 0, 0)
 
-    return Rack(description, latitude, longitude, online, bikes, locks)
+    raise ValueError("cannot parse \"%s\"" % htm)
 
 if __name__ == "__main__":
-    for rack in get_racks():
-        r = get_rack(rack)
-
-        print("%3d\t%s" % (rack, get_rack(rack)))
+    for r in get_racks():
+        print(r)
