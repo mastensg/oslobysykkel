@@ -37,7 +37,7 @@ def parse_rack(r):
     ps = doc.findall("p")
 
     try:
-        words = ps[0].findall("strong")[0].text.split("-")
+        words = ps[0].findall("strong")[0].text.lstrip("[Offline] ").split("-")
 
         number = int(words[0])
         name = "-".join(words[1:])
@@ -47,7 +47,7 @@ def parse_rack(r):
 
         return Rack(number, name, lat, lng, False, bikes, locks)
     except:
-        words = ps[0].text.split("-")
+        words = ps[0].text.lstrip("[Offline] ").split("-")
 
         number = int(words[0])
         name = "-".join(words[1:])
