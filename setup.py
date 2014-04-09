@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name="oslobysykkel",
-    version="0.3.0",
+    version="0.3.1",
 
     author="Martin Stensgård",
     author_email="mastensg@ping.uio.no",
